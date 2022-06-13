@@ -16,12 +16,9 @@ namespace TesterConsol
             public List<string> AnswerName;
             public int CorrectAnswer;
         }
-
         private static List<TestElement> Test;
-
         public static string NameTest;
-
-
+        public static int CountAnswers = 0;
         public static void Menu()
         {
             Console.WriteLine("-----------------------");
@@ -31,9 +28,7 @@ namespace TesterConsol
             Console.WriteLine("Create test - 1");
             Console.WriteLine("Passing test - 2\n");
             Console.WriteLine("Введите значение");
-
             int Key = 0;
-
             try
             {
                 Key = int.Parse(Console.ReadLine());
@@ -44,8 +39,6 @@ namespace TesterConsol
                 Console.WriteLine("\nОШИБКА 001 <Введено некорректное значение, попробуйте снова>\n");
                 Menu();
             }
-
-
             switch (Key)
             {
                 case 1:
@@ -63,17 +56,13 @@ namespace TesterConsol
                     Menu();
                     break;
             }
-
         }
 
 
         public static void Create(string NameTest)
         {
-
             Console.Clear();
-
             int CountQuestions = 0;
-            int CountAnswers = 0;
 
             for (int i = 0; i < 2; i++)
             {
@@ -94,22 +83,20 @@ namespace TesterConsol
                         if (!int.TryParse(Console.ReadLine(), out CountAnswers))
                         {
                             Console.Clear();
-                            Console.WriteLine("\nОШИБКА 003 <Введено некорректное количество вопросов, попробуйте снова>\n");
+                            Console.WriteLine("\nОШИБКА 004 <Введено некорректное количество ответов, попробуйте снова>\n");
                             i--;
                         }
                         else if (2 > CountAnswers)
                         {
                             Console.Clear();
-                            Console.WriteLine("\nОШИБКА 004 < Введите количество ответов более 1-го >\n");
+                            Console.WriteLine("\nОШИБКА 005 < Введите количество ответов более 1-го >\n");
                             i--;
                         }
                         break;
                     default:
                         break;
                 }
-
             }
-
             for (int i = 0; i < CountQuestions; i++)
             {
                 Console.Clear();
@@ -124,34 +111,33 @@ namespace TesterConsol
                     testElement.AnswerName.Add(Console.ReadLine());
                 }
                 Console.Clear();
-                Console.WriteLine("Индекс правильного ответа, индексы начинаются с 0");
-
-                try
+                for (int t = 0; t < CountAnswers; t++)
                 {
-                    testElement.CorrectAnswer = int.Parse(Console.ReadLine());
+                    switch (t)
+                    {
+                        case 0: //Правильный ответ
+                            Console.WriteLine("Индекс правильного ответа, индексы начинаются с 0");
+                            if (!int.TryParse(Console.ReadLine(), out testElement.CorrectAnswer))
+                            {
+                                Console.Clear();
+                                Console.WriteLine("\nОШИБКА 005 <Введен неверный индекс правильного ответа, попробуйте снова>\n");
+                                t--;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
-                catch (Exception)
-                {
-                    Console.Clear();
-                    Console.WriteLine("\nОШИБКА 005 <Введено неверный индекс правильного ответа, попробуйте снова>\n");
-                    Console.WriteLine("Правильный ответ");
-                    testElement.CorrectAnswer = int.Parse(Console.ReadLine());
-                }
-
-                Test.Add(testElement);
-
             }
             Console.Clear();
-            Console.WriteLine("Тест готов и сохранен\n");
+            Console.WriteLine("Тест готов и сохранен в файл\n");
             Save();
             Menu();
-
-
         }
+
 
         public static void Passing()
         {
-
             Console.WriteLine("Введите название теста");
             NameTest = Console.ReadLine();
             int correct_answer = 0;
@@ -159,21 +145,56 @@ namespace TesterConsol
             for (int i = 0; i < Test.Count; i++)
             {
                 Console.Clear();
-                Console.WriteLine(Test[i].QuestionName);
+                Console.WriteLine($"Вопрос {i} - { Test[i].QuestionName} \n");
                 for (int j = 0; j < Test[i].AnswerName.Count; j++)
                 {
-                    Console.WriteLine(Test[i].AnswerName[j]);
+                    Console.WriteLine($"{j}) {Test[i].AnswerName[j]} \n");
                 }
                 Console.WriteLine("Введите правильный ответ");
-                int answer = int.Parse(Console.ReadLine());
-
-                if (Test[i].CorrectAnswer == answer)
+                int answer = 0;
+                for (int t = 0; t < 1; t++)
                 {
-                    correct_answer++;
+                    switch (t)
+                    {
+                        case 0: //Правильный ответ
+                            if (!int.TryParse(Console.ReadLine(), out answer))
+                            {
+                                Console.WriteLine("\nОШИБКА 006 <Введен неверный индекс правильного ответа, попробуйте снова>\n");
+                                t--;
+                            }
+                            else if (answer > CountAnswers)
+                            {
+                                Console.WriteLine("\nОШИБКА 007 <Такого варианта нет>\n");
+                                t--;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    if (Test[i].CorrectAnswer == answer)
+                    {
+                        correct_answer++;
+                    }
                 }
             }
-            Console.WriteLine("Количество правильных ответов - " + (correct_answer));
-            Console.ReadLine();
+            Console.WriteLine($"Количество правильных ответов - {correct_answer} \n");
+            Console.WriteLine("Вернуться в меню - 1");
+            Console.WriteLine($"Закрыть {NameTest} - 2");
+            int Final = int.Parse(Console.ReadLine()); 
+            switch (Final)
+            {
+                case 1:
+                    Menu();
+                    break;
+                case 2:
+                    return;
+                    break;
+                default:
+                    Console.Clear();
+                    Console.WriteLine("\nОШИБКА 008 <Такого пункта нет>\n");
+                    Menu();
+                    break;
+            }
         }
 
 
@@ -182,6 +203,7 @@ namespace TesterConsol
             string json = JsonConvert.SerializeObject(Test);
             File.WriteAllText($@"C:\1\{NameTest}.txt", json);
         }
+
 
         public static void Load()
         {
