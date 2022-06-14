@@ -198,10 +198,15 @@ namespace TesterConsol
         }
 
 
-        public static void Save()
+        public static void SaveTestFile()
         {
             string json = JsonConvert.SerializeObject(Test);
             File.WriteAllText($@"C:\1\{NameTest}.txt", json);
+
+            string json = JsonConvert.SerializeObject(content);
+            Directory.CreateDirectory(ProgConstants.SaveFilePath);
+            File.WriteAllText(ProgConstants.SaveFilePath + NameTest + ProgConstants.SaveFileExtension, json);
+
         }
 
 
